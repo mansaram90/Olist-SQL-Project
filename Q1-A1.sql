@@ -7,7 +7,7 @@ WITH delivered_orders AS (
     o.order_id,
     o.order_purchase_timestamp,
     o.customer_id
-  FROM dbo.orders o
+  FROM orders o
   WHERE o.order_status = 'delivered'
 ),
 items_agg AS (
@@ -15,7 +15,7 @@ items_agg AS (
     oi.order_id,
     SUM(oi.price) AS items_total,
     SUM(oi.freight_value) AS freight_total
-  FROM dbo.order_items oi
+  FROM order_items oi
   GROUP BY oi.order_id
 ),
 payments_agg AS (
@@ -24,7 +24,7 @@ payments_agg AS (
     SUM(op.payment_value) AS paid_total,
     COUNT(*) AS payment_rows,
     COUNT(DISTINCT op.payment_type) AS payment_types_count
-  FROM dbo.order_payments op
+  FROM order_payments op
   GROUP BY op.order_id
 ),
 recon AS (
@@ -39,7 +39,7 @@ recon AS (
     COALESCE(p.payment_rows, 0) AS payment_rows,
     COALESCE(p.payment_types_count, 0) AS payment_types_count
   FROM delivered_orders d
-  JOIN dbo.customers c ON c.customer_id = d.customer_id
+  JOIN customers c ON c.customer_id = d.customer_id
   LEFT JOIN items_agg i ON i.order_id = d.order_id
   LEFT JOIN payments_agg p ON p.order_id = d.order_id
 )
